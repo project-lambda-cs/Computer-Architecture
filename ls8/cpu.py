@@ -9,6 +9,9 @@ HLT = 0b00000001
 MUL = 0b10100010
 POP = 0b01000110
 PUSH = 0b01000101
+CALL = 0b01010000
+RET = 0b00010001
+ADD = 0b10100000
 
 
 class CPU:
@@ -19,6 +22,7 @@ class CPU:
         self.ram = [0] * 256
         self.register = [0] * 8
         self.pc = 0
+        self.register[7] = 255
         self.sp = self.register[7]
 
     def ram_read(self, address):
@@ -149,6 +153,20 @@ class CPU:
                 # increment SP
                 self.sp += 1
                 self.pc += 2
+
+            elif IR == CALL:
+                self.sp -= 1
+                self.ram[self.sp] = self.pc + 2  # <<
+                regnum = operand_a
+                self.pc = self.register[regnum]
+
+            elif IR == RET:
+                self.pc = self.ram[self.sp]
+                self.sp += 1
+
+            elif IR == ADD:
+                self.register[operand_a] += self.register[operand_b]
+                self.pc += 3
 
                 # PC: Program Counter, address of the currently executing instruction special pursouse register
                 # IR: Instruction Register, contains a copy of the currently executing instruction
